@@ -2,15 +2,16 @@ using UnityEngine;
 
 public class MapTile : MonoBehaviour
 {
-    public int x, z; // 坐标
+    public int x,y,z; // 坐标
     private MeshRenderer meshRenderer; // 用于渲染
     private MeshFilter meshFilter;
 
     public Material tileMaterial; // 可配置材质
 
-    public void Initialize(int _x, int _z, Material material)
+    public void Initialize(int _x, int _y, int _z, Material material)
     {
         x = _x;
+        y = _y;
         z = _z;
         tileMaterial = material;
         RenderTile(); // 生成长方体
@@ -27,9 +28,9 @@ public class MapTile : MonoBehaviour
 
         // 设置材质
         meshRenderer.material = tileMaterial;
-
+        
         // 生成随机颜色 (RGB 值范围 0~1)
-        Color randomColor = new Color(Random.value, Random.value, Random.value);
+        Color randomColor = new Color(Random.value, Random.value, Random.value, 0.5f);
 
         // 应用到材质的颜色
         meshRenderer.material.color = randomColor;

@@ -5,7 +5,7 @@ public class MapGenerator : MonoBehaviour
 {
     public GameObject tilePrefab;
     public Material tileMaterial;
-    public int width = 5, height = 5;
+    public int width = 6, height = 6, layer = 4;
 
     [RuntimeInitializeOnLoadMethod]
     static void InitializeOnStartup()
@@ -13,7 +13,6 @@ public class MapGenerator : MonoBehaviour
         // 在程序启动时创建一个 MapGenerator 实例
         GameObject mapGeneratorObject = new GameObject("MapGenerator");
         MapGenerator mapGenerator = mapGeneratorObject.AddComponent<MapGenerator>();
-        //mapGenerator.Start();  // 手动调用 Start() 方法
     }
 
 
@@ -21,6 +20,9 @@ public class MapGenerator : MonoBehaviour
     {
         Console.Write("Aha");
         tilePrefab = Resources.Load<GameObject>("NewPrefab");
+        tileMaterial = new Material(Shader.Find("Unlit/Color"));
+        //tileMaterial = new Material(Shader.Find("Unlit/Transparent"));
+
         if (tilePrefab == null)
         {
             Debug.LogError("tilePrefab could not be loaded.");
@@ -32,18 +34,22 @@ public class MapGenerator : MonoBehaviour
 
     void GenerateMap()
     {
-        for (int x = 0; x < width; x++)
-        {
-            for (int z = 0; z < height; z++)
+        for(int y=0;y<layer;y++){
+            
+            for (int x = 0; x < width; x++)
             {
-                Vector3 position = new Vector3(x, 0, z);
-                //使用Prefab初始化和C++使用constructor进行初始化有何不同？
-                GameObject tile = Instantiate(tilePrefab, position, Quaternion.identity);
-                tile.name = $"Tile_{x}_{z}";
+                for (int z = 0; z < height; z++)
+                {
+                    Vector3 position = new Vector3(x, y*3, z);
+                    //使用Prefab初始化和C++使用constructor进行初始化有何不同？
+                    GameObject tile = Instantiate(tilePrefab, position, Quaternion.identity);
+                    tile.name = $"Tile_{y}_{x}_{z}";
 
-                MapTile tileScript = tile.AddComponent<MapTile>(); // 添加 MapTile 组件
-                tileScript.Initialize(x, z, tileMaterial); // 让它渲染自己
+                    MapTile tileScript = tile.AddComponent<MapTile>(); // 添加 MapTile 组件
+                    tileScript.Initialize(x, y, z, tileMaterial); // 让它渲染自己
+                }
             }
+
         }
     }
 }
