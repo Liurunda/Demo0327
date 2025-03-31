@@ -1,12 +1,19 @@
 using UnityEngine;
-
+using types;
 public class MapTile : MonoBehaviour
 {
-    public int x,y,z; // 坐标
+    public int x,y,z; 
+    // 一个地图块是1*1*1的正方体，而这里的坐标是正方体中心的坐标。
+    //角色设计为直径为1的球体，角色坐标为球心的坐标。当角色坐标高度和正方体地块坐标相差1的时候，就说明发生了碰撞。
+    //由于地图十分规则，可以O(1)简单计算出当前坐标可能参与碰撞检测的正方体地块是谁。
+    //碰撞检测时，需判断地图地块状态，是否已被破坏
+    //已被破坏的地图地块，不参与碰撞检测，不被渲染
     private MeshRenderer meshRenderer; // 用于渲染
     private MeshFilter meshFilter;
 
     public Material tileMaterial; // 可配置材质
+
+    public TileAlive alive = TileAlive.ALIVE; // 地图块状态
 
     public void Initialize(int _x, int _y, int _z, Material material)
     {
@@ -16,7 +23,10 @@ public class MapTile : MonoBehaviour
         tileMaterial = material;
         RenderTile(); // 生成长方体
     }
-
+    public void die(){
+        //TODO: 状态 Alive -> Dying, 安排一个固定延迟后的事件将Dying -> Dead
+        
+    }
     private void RenderTile()
     {
         // 添加 MeshFilter 和 MeshRenderer 组件
@@ -43,10 +53,10 @@ public class MapTile : MonoBehaviour
         Mesh mesh = new Mesh();
         mesh.vertices = new Vector3[]
         {
-            new Vector3(-0.5f, 0, -0.5f), new Vector3(0.5f, 0, -0.5f),
-            new Vector3(0.5f, 1, -0.5f), new Vector3(-0.5f, 1, -0.5f),
-            new Vector3(-0.5f, 0, 0.5f), new Vector3(0.5f, 0, 0.5f),
-            new Vector3(0.5f, 1, 0.5f), new Vector3(-0.5f, 1, 0.5f)
+            new Vector3(0, 0, 0), new Vector3(1, 0, 0),
+            new Vector3(1, 1, 0), new Vector3(0, 1, 0),
+            new Vector3(0, 0, 1), new Vector3(1, 0, 1),
+            new Vector3(1, 1, 1), new Vector3(0, 1, 1)
         };
         mesh.triangles = new int[]
         {
