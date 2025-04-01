@@ -43,6 +43,9 @@ public class Player : MonoBehaviour //角色模型为倒四棱锥或球体，总
         int x = (int)Math.Floor(before.x);
         int z = (int)Math.Floor(before.z);
         Debug.Log("before: "+before+" after: "+after+" l: "+l+" x: "+x+" z: "+z);
+        if(x<0||z<0||x>=MapGenerator.width||z>=MapGenerator.length){
+            return false;//坐标超出地图范围
+        }
         MapTile tile = MapGenerator.mapTiles[l,x,z];
         if(tile.alive==TileAlive.DEAD){
             return false;
