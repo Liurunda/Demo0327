@@ -10,7 +10,7 @@ public class Player : MonoBehaviour //角色模型为倒四棱锥或球体，总
 {
     public float jumpForce = 10f;
     public float gravity = 9.81f;
-    public float speedXZ = 0.02f;
+    public float speedXZ = 0.05f;
     public float speedY = 0f;
     List<int> Layers;
 
@@ -42,7 +42,7 @@ public class Player : MonoBehaviour //角色模型为倒四棱锥或球体，总
         //接下来找到对应layer的对应x/z坐标的地块, 进行查询和处理
         int x = (int)Math.Floor(before.x);
         int z = (int)Math.Floor(before.z);
-        Debug.Log("before: "+before+" after: "+after+" l: "+l+" x: "+x+" z: "+z);
+        //Debug.Log("before: "+before+" after: "+after+" l: "+l+" x: "+x+" z: "+z);
         if(x<0||z<0||x>=MapGenerator.width||z>=MapGenerator.length){
             return false;//坐标超出地图范围
         }
@@ -74,12 +74,16 @@ public class Player : MonoBehaviour //角色模型为倒四棱锥或球体，总
         after.x += right*speedXZ;
         after.z += front*speedXZ;//更精确的实现: 将speedXZ按照sin/cos分解到x，z方向上
         //根据重力加速度更新当前垂直速度 ，再根据当前垂直速度更新当前高度。
-        speedY -= gravity*0.02f;
+        speedY -= gravity*0.002f;
         if(speedY<-0.1)speedY=-0.1f;//限制下落速度
         after.y += speedY;
         if(grounded(before,after)){
             speedY = 0;
             after.y = (float)Math.Floor(before.y);
+            if(Input.GetKey(KeyCode.Space)){
+                speedY = 0.4f;
+                after.y+=speedY;
+            }
         }
         transform.position = after;//好了，现在可以球体下落碰到地板了,但依然无法水平移动，而且碰到地板之后就开始大量的数组越界Exception。调试一下。
     }
