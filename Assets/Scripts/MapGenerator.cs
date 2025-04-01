@@ -64,9 +64,11 @@ public class MapGenerator : MonoBehaviour
 
         Vector3 playerInitialPosition = new Vector3(3, 35, 3);
         GameObject player = Instantiate(playerPrefab, playerInitialPosition, Quaternion.identity);
+        player.name = "Player";
         Player playerScript = player.AddComponent<Player>();
-        Console.Write(player.transform.position);
-       // playerScript.Initialize(playerInitialPosition, playerMaterial);
+        GameObject mainCam = GameObject.Find("Main Camera");
+        CameraController cameraController = mainCam.AddComponent<CameraController>();
+        cameraController.Initialize();
     }
 }
 
