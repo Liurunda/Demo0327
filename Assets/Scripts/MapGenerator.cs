@@ -7,7 +7,7 @@ using Unity.VisualScripting;
 
 public class MapGenerator : MonoBehaviour
 {
-    public GameObject tilePrefab;
+    public GameObject tilePrefab,playerPrefab;
     public Material tileMaterial;
     public int width = 30, length = 30, layer = 6, vertical_gap = 10;
     public static List<int> layer_heights = new List<int>();
@@ -26,6 +26,8 @@ public class MapGenerator : MonoBehaviour
     {
         Console.Write("Aha");
         tilePrefab = Resources.Load<GameObject>("NewPrefab");
+        playerPrefab = Resources.Load<GameObject>("PlayerPrefab");
+
         tileMaterial = new Material(Shader.Find("Unlit/Color"));
 
         //tileMaterial = new Material(Shader.Find("Unlit/Transparent"));
@@ -42,12 +44,12 @@ public class MapGenerator : MonoBehaviour
     void GenerateMap()
     {
         for(int y=0;y<layer;y++){
-            
+            layer_heights.Add(y*vertical_gap+1);//y坐标为地块下表面高度, 地块自身高度为1 //这一句之前放到内层循环, 结果整了个大小2700的数组出来
+
             for (int x = 0; x < width; x++)
             {
                 for (int z = 0; z < length; z++)
                 {
-                    layer_heights.Add(y*vertical_gap+1);//y坐标为地块下表面高度, 地块自身高度为1
                     Vector3 position = new Vector3(x, y*vertical_gap, z);//0,gap,2*gap,3*gap...(layer-1)*gap
                     //使用Prefab初始化和C++使用constructor进行初始化有何不同？
                     GameObject tile = Instantiate(tilePrefab, position, Quaternion.identity);
@@ -58,8 +60,13 @@ public class MapGenerator : MonoBehaviour
                     tileScript.Initialize(x, y, z, tileMaterial); // 让它渲染自己
                 }
             }
+        } 
 
-        }
+        Vector3 playerInitialPosition = new Vector3(3, 35, 3);
+        GameObject player = Instantiate(playerPrefab, playerInitialPosition, Quaternion.identity);
+        Player playerScript = player.AddComponent<Player>();
+        Console.Write(player.transform.position);
+       // playerScript.Initialize(playerInitialPosition, playerMaterial);
     }
 }
 
