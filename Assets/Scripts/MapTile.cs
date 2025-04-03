@@ -1,8 +1,10 @@
 using UnityEngine;
 using types;
+using UnityEngine.Rendering.Universal;
 public class MapTile : MonoBehaviour
 {
-    public int x,y,z; 
+    public int x,y,z; //position of tile
+    public int X,Z;//size of tile
     // 一个地图块是1*1*1的正方体，而这里的坐标是正方体中心的坐标。
     //角色设计为直径为1的球体，角色坐标为球心的坐标。当角色坐标高度和正方体地块坐标相差1的时候，就说明发生了碰撞。
     //由于地图十分规则，可以O(1)简单计算出当前坐标可能参与碰撞检测的正方体地块是谁。
@@ -15,17 +17,25 @@ public class MapTile : MonoBehaviour
 
     public TileAlive alive = TileAlive.ALIVE; // 地图块状态
 
-    public void Initialize(int _x, int _y, int _z, Material material)
+
+    public void Initialize(int _x, int _y, int _z, int _X, int _Z, Material material)
     {
         x = _x;
         y = _y;
         z = _z;
+        X = _X;
+        Z = _Z;
         tileMaterial = material;
         RenderTile(); // 生成长方体
     }
-    public void die(){
+    public void die_start(){
         //TODO: 状态 Alive -> Dying, 安排一个固定延迟后的事件将Dying -> Dead
-        
+        meshRenderer.material.color = Color.gray;
+        alive = TileAlive.DYING;
+    }
+    public void die_finish(){//called 2 seconds after die_start
+        alive = TileAlive.DEAD;
+        meshRenderer.enabled = false;
     }
     private void RenderTile()
     {
@@ -53,10 +63,10 @@ public class MapTile : MonoBehaviour
         Mesh mesh = new Mesh();
         mesh.vertices = new Vector3[]
         {
-            new Vector3(0, 0, 0), new Vector3(1, 0, 0),
-            new Vector3(1, 1, 0), new Vector3(0, 1, 0),
-            new Vector3(0, 0, 1), new Vector3(1, 0, 1),
-            new Vector3(1, 1, 1), new Vector3(0, 1, 1)
+            new Vector3(0, 0, 0), new Vector3(X, 0, 0),
+            new Vector3(X, 1, 0), new Vector3(0, 1, 0),
+            new Vector3(0, 0, Z), new Vector3(X, 0, Z),
+            new Vector3(X, 1, Z), new Vector3(0, 1, Z)
         };
         mesh.triangles = new int[]
         {
@@ -69,5 +79,16 @@ public class MapTile : MonoBehaviour
         };
         mesh.RecalculateNormals();
         return mesh;
+    }
+
+    public bool touch(){
+        if(alive==TileAlive.DEAD){
+            return false;
+        }else{//ALIVE or DYING?
+            if(alive==TileAlive.ALIVE){
+                die_start();
+            }
+            return true;
+        }
     }
 }

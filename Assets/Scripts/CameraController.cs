@@ -14,9 +14,8 @@ public class CameraController : MonoBehaviour {
     }
     void LateUpdate() {
         // 摄像机位置 = 目标位置 + 偏移量
-        // TODO: 从玩家那里获得朝向，按照玩家朝向计算相机偏移量, 然后相机lookat玩家
-        //target.rotate
-
+        //从玩家那里获得朝向，按照玩家朝向计算相机偏移量, 然后相机lookat玩家
+    
         Vector3 worldOffset = target.rotation * offset;
 
         transform.position = target.position + worldOffset;

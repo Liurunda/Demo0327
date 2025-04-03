@@ -10,6 +10,8 @@ public class MapGenerator : MonoBehaviour
     public GameObject tilePrefab,playerPrefab;
     public Material tileMaterial;
     public static int width = 30, length = 30, layer = 6, vertical_gap = 10;
+
+    public static int tileSizeX = 2, tileSizeZ = 2;
     public static List<int> layer_heights = new List<int>();
     public static MapTile[,,] mapTiles;
 
@@ -50,14 +52,15 @@ public class MapGenerator : MonoBehaviour
             {
                 for (int z = 0; z < length; z++)
                 {
-                    Vector3 position = new Vector3(x, y*vertical_gap, z);//0,gap,2*gap,3*gap...(layer-1)*gap
+                    Vector3 position = new Vector3(x*tileSizeX, y*vertical_gap, z*tileSizeZ);//0,gap,2*gap,3*gap...(layer-1)*gap
                     //使用Prefab初始化和C++使用constructor进行初始化有何不同？
                     GameObject tile = Instantiate(tilePrefab, position, Quaternion.identity);
                     tile.name = $"Tile_{y}_{x}_{z}";
-                    //(x,y*gap,z)表示地块左下角坐标 地块右上角为(x+1,y*gap+1,z+1)
+                    //(x*tileSizeX,y*gap,z*tileSizeZ)表示地块左下角坐标
+                    //地块右上角为(x*tileSizeX+tileSizeX,y*gap+1,z*tileSizeZ+tileSizeZ)
                     MapTile tileScript = tile.AddComponent<MapTile>(); // 添加 MapTile 组件
                     mapTiles[y, x, z] = tileScript;
-                    tileScript.Initialize(x, y, z, tileMaterial); // 让它渲染自己
+                    tileScript.Initialize(x, y, z, tileSizeX, tileSizeZ, tileMaterial); // 让它渲染自己
                 }
             }
         } 
