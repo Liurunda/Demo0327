@@ -14,6 +14,8 @@ public class Player : MonoBehaviour //角色模型为倒四棱锥或球体，总
     public float speedY = 0f;
     List<int> Layers;
 
+    public float mouseSensitivity = 150f;
+
     void Start(){
         Layers = MapGenerator.layer_heights;
     }
@@ -56,6 +58,27 @@ public class Player : MonoBehaviour //角色模型为倒四棱锥或球体，总
             return true;
         }
     }
+    
+    void HandleMouseLook()
+    {
+        // 1. 获取鼠标水平移动量
+        // "Mouse X" 是 Unity 默认的鼠标左右移动输入轴
+        float mouseX = Input.GetAxis("Mouse X");
+
+        // 2. 计算旋转角度
+        // 乘以灵敏度并乘以时间增量，使得旋转速度与帧率无关且可调
+        float rotationAmountY = mouseX * mouseSensitivity * Time.deltaTime;
+
+        // 3. 应用旋转
+        // Rotate 方法会给当前旋转增加一个旋转量
+        // Vector3.up 代表世界坐标系的 Y 轴 (垂直轴)
+        // 这会使物体绕着世界的垂直轴旋转，即左右转头
+        transform.Rotate(Vector3.up * rotationAmountY);
+    }
+
+    void Update(){
+        HandleMouseLook();
+    }
     void FixedUpdate(){
         //获取before向量
         //水平移动: 根据键盘输入，获取水平速度。简便实现，将方向键直接映射到固定速度。当前水平方向没有碰撞。    
@@ -65,27 +88,28 @@ public class Player : MonoBehaviour //角色模型为倒四棱锥或球体，总
         //判断触地的条件: 前一帧 高度>=地面，下一帧高度 <= 地面
         Vector3 before = transform.position;
         Vector3 after = before;
-        
+        Vector3 delta = new Vector3(0, 0, 0);
         //暂时不考虑摄像头的位置移动，只考虑玩家自身的移动，之后再添加摄像头追随玩家移动和改变朝向
         
         //根据键盘输入获取水平速度  
         float right = Input.GetAxis("Horizontal");
         float front = Input.GetAxis("Vertical");
-        after.x += right*speedXZ;
-        after.z += front*speedXZ;//更精确的实现: 将speedXZ按照sin/cos分解到x，z方向上
+        delta.x += right*speedXZ;
+        delta.z += front*speedXZ;//更精确的实现: 将speedXZ按照sin/cos分解到x，z方向上
         //根据重力加速度更新当前垂直速度 ，再根据当前垂直速度更新当前高度。
         speedY -= gravity*0.002f;
         if(speedY<-0.1)speedY=-0.1f;//限制下落速度
-        after.y += speedY;
+        delta.y += speedY;
+        after = before + delta;
         if(grounded(before,after)){
             speedY = 0;
-            after.y = (float)Math.Floor(before.y);
+            delta.y = (float)Math.Floor(before.y)-before.y;
             if(Input.GetKey(KeyCode.Space)){
                 speedY = 0.4f;
-                after.y+=speedY;
+                delta.y+=speedY;
             }
         }
-        transform.position = after;//好了，现在可以球体下落碰到地板了,但依然无法水平移动，而且碰到地板之后就开始大量的数组越界Exception。调试一下。
+        transform.Translate(delta);
     }
 
 }
