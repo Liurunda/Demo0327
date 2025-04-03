@@ -1,6 +1,8 @@
 using UnityEngine;
 using types;
 using UnityEngine.Rendering.Universal;
+using System.Collections;
+
 public class MapTile : MonoBehaviour
 {
     public int x,y,z; //position of tile
@@ -28,11 +30,19 @@ public class MapTile : MonoBehaviour
         tileMaterial = material;
         RenderTile(); // 生成长方体
     }
-    public void die_start(){
-        //TODO: 状态 Alive -> Dying, 安排一个固定延迟后的事件将Dying -> Dead
+
+    public void die_start() { //2秒后, DYING -> DEAD
         meshRenderer.material.color = Color.gray;
         alive = TileAlive.DYING;
+        StartCoroutine(DelayDieFinish()); // 启动协程
     }
+
+    private IEnumerator DelayDieFinish() {
+        yield return new WaitForSeconds(2f); // 等待 2 秒
+        die_finish(); 
+    }
+
+
     public void die_finish(){//called 2 seconds after die_start
         alive = TileAlive.DEAD;
         meshRenderer.enabled = false;
