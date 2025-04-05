@@ -5,13 +5,8 @@ using System.Collections;
 
 public class MapTile : MonoBehaviour
 {
-    public int x,y,z; //position of tile
-    public int X,Z;//size of tile
-    // 一个地图块是1*1*1的正方体，而这里的坐标是正方体中心的坐标。
-    //角色设计为直径为1的球体，角色坐标为球心的坐标。当角色坐标高度和正方体地块坐标相差1的时候，就说明发生了碰撞。
-    //由于地图十分规则，可以O(1)简单计算出当前坐标可能参与碰撞检测的正方体地块是谁。
-    //碰撞检测时，需判断地图地块状态，是否已被破坏
-    //已被破坏的地图地块，不参与碰撞检测，不被渲染
+    public int x,y,z; //地块左下角坐标
+    public int X,Z;//地块大小
     private MeshRenderer meshRenderer; // 用于渲染
     private MeshFilter meshFilter;
 
@@ -31,22 +26,7 @@ public class MapTile : MonoBehaviour
         RenderTile(); // 生成长方体
     }
 
-    public void die_start() { //2秒后, DYING -> DEAD
-        meshRenderer.material.color = Color.gray;
-        alive = TileAlive.DYING;
-        StartCoroutine(DelayDieFinish()); // 启动协程
-    }
 
-    private IEnumerator DelayDieFinish() {
-        yield return new WaitForSeconds(2f); // 等待 2 秒
-        die_finish(); 
-    }
-
-
-    public void die_finish(){//called 2 seconds after die_start
-        alive = TileAlive.DEAD;
-        meshRenderer.enabled = false;
-    }
     private void RenderTile()
     {
         // 添加 MeshFilter 和 MeshRenderer 组件
@@ -67,7 +47,7 @@ public class MapTile : MonoBehaviour
 
     }
 
-    // 生成立方体的 Mesh
+    // 生成立方体地块的 Mesh, 地块大小可调节
     private Mesh CreateCubeMesh()
     {
         Mesh mesh = new Mesh();
@@ -91,14 +71,35 @@ public class MapTile : MonoBehaviour
         return mesh;
     }
 
+    //ALIVE -> (touched) -> DYING -> (2s) -> DEAD
+    //  如果Alive，则触发触地状态, 更新当前地块的alive状态为Dying 
+    //  如果Dying, 则触发触地状态
+    //  如果Dead，则不触发触地状态，继续下落
     public bool touch(){
         if(alive==TileAlive.DEAD){
             return false;
-        }else{//ALIVE or DYING?
+        }else{
             if(alive==TileAlive.ALIVE){
                 die_start();
             }
             return true;
         }
     }
+    void die_start() {
+        meshRenderer.material.color = Color.gray;
+        alive = TileAlive.DYING;
+        StartCoroutine(DelayDieFinish()); 
+    }
+
+    IEnumerator DelayDieFinish() {
+        yield return new WaitForSeconds(2f);
+        die_finish(); 
+    }
+
+    //called 2 seconds after die_start()
+    void die_finish(){
+        alive = TileAlive.DEAD;
+        meshRenderer.enabled = false;
+    }
 }
+

@@ -2,25 +2,22 @@
 using Unity.VisualScripting;
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
 using System;
 using types;
 using UnityEditor.Rendering;
 
-public class Player : MonoBehaviour //角色模型为倒四棱锥或球体，总之下方和地面接触的是一个点，省去一些麻烦
+public class Player : MonoBehaviour //角色为直径为1的球体，角色坐标为球体最低点的坐标。
+
 {
     public float jumpForce = 10f;
     public float gravity = 9.81f;
     public float speedXZ = 0.05f;
     public float speedY = 0f;
-    List<int> Layers;
-
     int tileX, tileZ;
 
     public float mouseSensitivity = 200f;
 
     void Start(){
-        Layers = MapGenerator.layer_heights;
         tileX = MapGenerator.tileSizeX;
         tileZ = MapGenerator.tileSizeZ;
     }
@@ -85,38 +82,30 @@ public class Player : MonoBehaviour //角色模型为倒四棱锥或球体，总
         transform.Translate(delta);
     }
 
-        bool grounded(Vector3 before, Vector3 after){
-            //当不考虑地块碰撞时，角色发生垂直方向位移时，检测是否触发下落到地面的碰撞事件
-            //before.y和after.y均使用角色模型的最低y坐标
-            //1. 判断当前Player位于哪一个Layer(直接遍历, 常数不大)
-            //2. 判断当前Player在高度上是否能够触地（before高于当前Layer的地面高度，after低于当前Layer的地面高度）
-            //3. 判断当前Player触碰到的地块是否为alive状态————> 
-            //  如果Alive，则更新当前地块的alive状态为Dying 
-            //  如果Dying, 则触发触地状态
-            //  如果Dead，则不触发触地状态，继续下落
-            //另外，当某个地块从Dying变为Dead时，如果有玩家位于其上方，则开始下落
-            if(before.y<Layers.First() || after.y>Layers.Last()){
-                return false;//高度超出地图垂直范围
-            }
-            int l = 0;
-            while(after.y>Layers[l]){
-                l++;
-            }
-            //assert: after.y<=Layers[l]
-            if(before.y<Layers[l]){
+        bool grounded(Vector3 before, Vector3 after){//before.y和after.y均使用角色模型的最低y坐标
+            //1. 判断当前Player位于哪一层地板(直接遍历, 常数不大) (maybeGrounded)
+            //2. 判断当前Player的高度是否穿越了这层地板的y (maybeGrounded)
+            //3. 找到对应的地块
+            //4. 判断当前Player触碰到的地块是否为alive状态 -> MapTile.touch()进行相应的更新 
+            //当某个地块从Dying变为Dead时，如果有玩家位于其上方，需要让玩家开始下落
+            
+            int layer = MapGenerator.PenetratedLayer(before.y, after.y);
+            // -1: no layer of floor is penetrated
+
+            if(layer == -1){
                 return false;//高度未穿越地面
-            }
-            //在高度意义上触地, 判断地块是否alive
-            //接下来找到对应layer的对应x/z坐标的地块, 进行查询和处理
+            }  
+
+            //接下来找到对应layer的对应x/z坐标的地块, 
             int x = (int)Math.Floor(before.x/tileX);
             int z = (int)Math.Floor(before.z/tileZ);
 
-            if(!MapGenerator.contain(x,z)){
-                return false;//坐标超出地图范围
+            if(!MapGenerator.containXZ(x,z)){
+                return false;//(x,z)坐标超出地图范围
             }
             
-            MapTile tile = MapGenerator.mapTiles[l,x,z];
-            return tile.touch();
+            MapTile tile = MapGenerator.mapTiles[layer,x,z];
+            return tile.touch();//根据对应的地块是否alive, 进行处理
 
         }
 }
