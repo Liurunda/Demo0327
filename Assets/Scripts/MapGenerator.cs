@@ -15,14 +15,18 @@ public class MapGenerator : MonoBehaviour
     public static List<int> layer_heights = new List<int>();
     public static MapTile[,,] mapTiles;
 
-    [RuntimeInitializeOnLoadMethod]
-    static void InitializeOnStartup()
-    {
-        // 在程序启动时创建一个 MapGenerator 实例
-        GameObject mapGeneratorObject = new GameObject("MapGenerator");
-        MapGenerator mapGenerator = mapGeneratorObject.AddComponent<MapGenerator>();
-    }
+    // Add MapGenerator as a game object in the scene
+    // [RuntimeInitializeOnLoadMethod]
+    // static void InitializeOnStartup()
+    // {
+    //     // 在程序启动时创建一个 MapGenerator 实例
+    //     GameObject mapGeneratorObject = new GameObject("MapGenerator");
+    //     MapGenerator mapGenerator = mapGeneratorObject.AddComponent<MapGenerator>();
+    // }
 
+    static public bool contain(int x, int z){
+        return x>=0 && z>=0 && x<width && z < length;
+    }
 
     void Start()
     {
@@ -31,8 +35,6 @@ public class MapGenerator : MonoBehaviour
         playerPrefab = Resources.Load<GameObject>("PlayerPrefab");
 
         tileMaterial = new Material(Shader.Find("Unlit/Color"));
-
-        //tileMaterial = new Material(Shader.Find("Unlit/Transparent"));
 
         if (tilePrefab == null)
         {

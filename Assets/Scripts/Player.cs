@@ -17,7 +17,7 @@ public class Player : MonoBehaviour //角色模型为倒四棱锥或球体，总
 
     int tileX, tileZ;
 
-    public float mouseSensitivity = 150f;
+    public float mouseSensitivity = 200f;
 
     void Start(){
         Layers = MapGenerator.layer_heights;
@@ -44,7 +44,6 @@ public class Player : MonoBehaviour //角色模型为倒四棱锥或球体，总
         float rotationAmountY = mouseX * mouseSensitivity * Time.deltaTime;
 
         // 3. 应用旋转
-        // Rotate 方法会给当前旋转增加一个旋转量
         // Vector3.up 代表世界坐标系的 Y 轴 (垂直轴)
         // 这会使物体绕着世界的垂直轴旋转，即左右转头
         transform.Rotate(Vector3.up * rotationAmountY);
@@ -61,13 +60,13 @@ public class Player : MonoBehaviour //角色模型为倒四棱锥或球体，总
         Vector3 before = transform.position;
         Vector3 after = before;
         Vector3 delta = new Vector3(0, 0, 0);
-        //暂时不考虑摄像头的位置移动，只考虑玩家自身的移动，之后再添加摄像头追随玩家移动和改变朝向
         
-        //根据键盘输入获取水平速度  
+        //根据键盘输入获取水平移动方向, 进行位移分解
         float right = Input.GetAxis("Horizontal");
         float front = Input.GetAxis("Vertical");
-        delta.x += right*speedXZ;
-        delta.z += front*speedXZ;//更精确的实现: 将speedXZ按照sin/cos分解到x，z方向上
+        Vector3 direction = new Vector3(right, 0, front);
+        delta = direction.normalized * speedXZ;
+
         //根据重力加速度更新当前垂直速度 ，再根据当前垂直速度更新当前高度。
         speedY -= gravity*0.002f;
         if(speedY<-0.1){
@@ -111,8 +110,8 @@ public class Player : MonoBehaviour //角色模型为倒四棱锥或球体，总
             //接下来找到对应layer的对应x/z坐标的地块, 进行查询和处理
             int x = (int)Math.Floor(before.x/tileX);
             int z = (int)Math.Floor(before.z/tileZ);
-            //Debug.Log("before: "+before+" after: "+after+" l: "+l+" x: "+x+" z: "+z);
-            if(x<0||z<0||x>=MapGenerator.width||z>=MapGenerator.length){
+
+            if(!MapGenerator.contain(x,z)){
                 return false;//坐标超出地图范围
             }
             
