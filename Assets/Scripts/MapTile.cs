@@ -2,11 +2,15 @@ using UnityEngine;
 using types;
 using UnityEngine.Rendering.Universal;
 using System.Collections;
+using UnityEngine.Rendering;
+using UnityEngine.Timeline;
 
 public class MapTile : MonoBehaviour
 {
     public int x,y,z; //地块左下角坐标
     public int X,Z;//地块大小
+    public int my_color;
+    static Color[] colors = {Color.red, Color.blue, Color.yellow};  
     private MeshRenderer meshRenderer; // 用于渲染
     private MeshFilter meshFilter;
 
@@ -38,13 +42,9 @@ public class MapTile : MonoBehaviour
 
         // 设置材质
         meshRenderer.material = tileMaterial;
-        
-        // 生成随机颜色 (RGB 值范围 0~1)
-        Color randomColor = new Color(Random.value, Random.value, Random.value, 0.5f);
-
-        // 应用到材质的颜色
-        meshRenderer.material.color = randomColor;
-
+        //将my_color 赋值为 0....colors.size()的随机数： 
+        my_color = Random.Range(0, colors.Length);
+        meshRenderer.material.color = colors[my_color];
     }
 
     // 生成立方体地块的 Mesh, 地块大小可调节

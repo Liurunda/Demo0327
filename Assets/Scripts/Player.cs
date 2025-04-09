@@ -21,15 +21,16 @@ public class Player : MonoBehaviour //角色为直径为1的球体，角色坐�
         tileX = MapGenerator.tileSizeX;
         tileZ = MapGenerator.tileSizeZ;
     }
-
     
     void Update(){
         HandleMouseLook();
     }
+
     void FixedUpdate(){
         
         HandleMove();
     }
+
     void HandleMouseLook()
     {
         // 1. 获取鼠标水平移动量
@@ -82,30 +83,30 @@ public class Player : MonoBehaviour //角色为直径为1的球体，角色坐�
         transform.Translate(delta);
     }
 
-        bool grounded(Vector3 before, Vector3 after){//before.y和after.y均使用角色模型的最低y坐标
-            //1. 判断当前Player位于哪一层地板(直接遍历, 常数不大) (maybeGrounded)
-            //2. 判断当前Player的高度是否穿越了这层地板的y (maybeGrounded)
-            //3. 找到对应的地块
-            //4. 判断当前Player触碰到的地块是否为alive状态 -> MapTile.touch()进行相应的更新 
-            //当某个地块从Dying变为Dead时，如果有玩家位于其上方，需要让玩家开始下落
-            
-            int layer = MapGenerator.PenetratedLayer(before.y, after.y);
-            // -1: no layer of floor is penetrated
+    bool grounded(Vector3 before, Vector3 after){//before.y和after.y均使用角色模型的最低y坐标
+        //1. 判断当前Player位于哪一层地板(直接遍历, 常数不大) (maybeGrounded)
+        //2. 判断当前Player的高度是否穿越了这层地板的y (maybeGrounded)
+        //3. 找到对应的地块
+        //4. 判断当前Player触碰到的地块是否为alive状态 -> MapTile.touch()进行相应的更新 
+        //当某个地块从Dying变为Dead时，如果有玩家位于其上方，需要让玩家开始下落
+        
+        int layer = MapGenerator.PenetratedLayer(before.y, after.y);
+        // -1: no layer of floor is penetrated
 
-            if(layer == -1){
-                return false;//高度未穿越地面
-            }  
+        if(layer == -1){
+            return false;//高度未穿越地面
+        }  
 
-            //接下来找到对应layer的对应x/z坐标的地块, 
-            int x = (int)Math.Floor(before.x/tileX);
-            int z = (int)Math.Floor(before.z/tileZ);
+        //接下来找到对应layer的对应x/z坐标的地块, 
+        int x = (int)Math.Floor(before.x/tileX);
+        int z = (int)Math.Floor(before.z/tileZ);
 
-            if(!MapGenerator.containXZ(x,z)){
-                return false;//(x,z)坐标超出地图范围
-            }
-            
-            MapTile tile = MapGenerator.mapTiles[layer,x,z];
-            return tile.touch();//根据对应的地块是否alive, 进行处理
-
+        if(!MapGenerator.containXZ(x,z)){
+            return false;//(x,z)坐标超出地图范围
         }
+        
+        MapTile tile = MapGenerator.mapTiles[layer,x,z];
+        return tile.touch();//根据对应的地块是否alive, 进行处理
+
+    }
 }

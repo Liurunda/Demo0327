@@ -11,7 +11,7 @@ public class MapGenerator : MonoBehaviour
 {
     public GameObject tilePrefab,playerPrefab;
     public Material tileMaterial;
-    public static int width = 30, length = 30, layer = 6, vertical_gap = 10;
+    public static int width = 10, length = 10, layer = 6, vertical_gap = 10;
 
     public static int tileSizeX = 2, tileSizeZ = 2;
     public static List<int> layer_heights = new List<int>();
@@ -87,5 +87,3 @@ public class MapGenerator : MonoBehaviour
     }
 
 }
-
-
