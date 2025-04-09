@@ -17,9 +17,9 @@ public class MapTile : MonoBehaviour
     public Material tileMaterial; // 可配置材质
 
     public TileAlive alive = TileAlive.ALIVE; // 地图块状态
+    public MapGenerator mapGenerator;
 
-
-    public void Initialize(int _x, int _y, int _z, int _X, int _Z, Material material)
+    public void Initialize(int _x, int _y, int _z, int _X, int _Z, Material material, MapGenerator mapGen)
     {
         x = _x;
         y = _y;
@@ -27,6 +27,7 @@ public class MapTile : MonoBehaviour
         X = _X;
         Z = _Z;
         tileMaterial = material;
+        mapGenerator = mapGen;
         RenderTile(); // 生成长方体
     }
 
@@ -88,6 +89,7 @@ public class MapTile : MonoBehaviour
     void die_start() {
         meshRenderer.material.color = Color.gray;
         alive = TileAlive.DYING;
+        mapGenerator.UpdateScore(my_color);
         StartCoroutine(DelayDieFinish()); 
     }
 

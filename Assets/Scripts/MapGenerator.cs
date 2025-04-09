@@ -11,6 +11,7 @@ public class MapGenerator : MonoBehaviour
 {
     public GameObject tilePrefab,playerPrefab;
     public Material tileMaterial;
+    public ScoreCalculator scoreCalculator;
     public static int width = 10, length = 10, layer = 6, vertical_gap = 10;
 
     public static int tileSizeX = 2, tileSizeZ = 2;
@@ -67,7 +68,7 @@ public class MapGenerator : MonoBehaviour
                     tile.name = $"Tile_{y}_{x}_{z}";
                     MapTile tileScript = tile.AddComponent<MapTile>(); // 添加 MapTile 组件
                     mapTiles[y, x, z] = tileScript;
-                    tileScript.Initialize(x, y, z, tileSizeX, tileSizeZ, tileMaterial); // 让它渲染自己
+                    tileScript.Initialize(x, y, z, tileSizeX, tileSizeZ, tileMaterial, this); // 让它渲染自己
                 }
             }
         } 
@@ -84,6 +85,10 @@ public class MapGenerator : MonoBehaviour
         var mainCam = Camera.main;
         CameraController cameraController = mainCam.AddComponent<CameraController>();
         cameraController.Initialize();
+    }
+
+    public void UpdateScore(int color){
+        scoreCalculator.UpdateScore(color);
     }
 
 }
